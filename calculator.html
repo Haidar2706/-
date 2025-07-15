@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Расширенный калькулятор себестоимости</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 450px; margin: 30px auto; }
+  label { display: block; margin-top: 12px; }
+  input[type=number] { width: 100%; padding: 8px; box-sizing: border-box; }
+  button { margin-top: 15px; padding: 10px 15px; font-size: 16px; }
+  .result { margin-top: 25px; background: #f9f9f9; padding: 15px; border-radius: 6px; }
+</style>
+</head>
+<body>
+
+<h2>Расширенный калькулятор себестоимости</h2>
+
+<label>Цена инвойса ($):
+  <input type="number" id="invoicePrice" value="12000" min="0" step="0.01" />
+</label>
+
+<label>Фрахт ($):
+  <input type="number" id="freight" value="0.760" min="0" step="0.001" />
+</label>
+
+<label>НДС (%) :
+  <input type="number" id="vatPercent" value="12" min="0" step="0.01" />
+</label>
+
+<label>Налог на прибыль + расходы ($):
+  <input type="number" id="profitTaxAndExpenses" value="1.429" min="0" step="0.001" />
+</label>
+
+<label>НСП (%) :
+  <input type="number" id="nspPercent" value="2" min="0" step="0.01" />
+</label>
+
+<label>Накладные расходы (%) :
+  <input type="number" id="overheadPercent" value="1" min="0" step="0.01" />
+</label>
+
+<label>Курс доллара:
+  <input type="number" id="exchangeRate" value="87.5" min="0" step="0.01" />
+</label>
+
+<button onclick="calculateCost()">Рассчитать</button>
+
+<div class="result" id="result"></div>
+
+<script>
+function calculateCost() {
+  const invoicePrice = parseFloat(document.getElementById('invoicePrice').value);
+  const freight = parseFloat(document.getElementById('freight').value);
+  const vatPercent = parseFloat(document.getElementById('vatPercent').value);
+  const profitTaxAndExpenses = parseFloat(document.getElementById('profitTaxAndExpenses').value);
+  const nspPercent = parseFloat(document.getElementById('nspPercent').value);
+  const overheadPercent = parseFloat(document.getElementById('overheadPercent').value);
+  const exchangeRate = parseFloat(document.getElementById('exchangeRate').value);
+
+  if ([invoicePrice, freight, vatPercent, profitTaxAndExpenses, nspPercent, overheadPercent, exchangeRate].some(isNaN)) {
+    alert('Пожалуйста, введите корректные числа во все поля.');
+    return;
+  }
+
+  if (invoicePrice < 0 || freight < 0 || vatPercent < 0 || profitTaxAndExpenses < 0 || nspPercent < 0 || overheadPercent < 0 || exchangeRate <= 0) {
+    alert('Значения должны быть положительными, курс доллара больше нуля.');
+    return;
+  }
+
+  const vat = invoicePrice * vatPercent / 100;
+  const nsp = invoicePrice * nspPercent / 100;
+  const overhead = invoicePrice * overheadPercent / 100;
+
+  const totalCostUSD = invoicePrice + freight + vat + profitTaxAndExpenses + nsp + overhead;
+  const totalCostSom = totalCostUSD * exchangeRate;
+
+  document.getElementById('result').innerHTML = `
+    <b>Фрахт ($):</b> ${freight.toFixed(3)}<br/>
+    <b>НДС ($):</b> ${vat.toFixed(3)}<br/>
+    <b>Налог на прибыль + расходы ($):</b> ${profitTaxAndExpenses.toFixed(3)}<br/>
+    <b>НСП ($):</b> ${nsp.toFixed(3)}<br/>
+    <b>Накладные расходы ($):</b> ${overhead.toFixed(3)}<br/>
+    <hr/>
+    <b>Себестоимость ($):</b> ${totalCostUSD.toFixed(3)}<br/>
+    <b>Себестоимость (сом):</b> ${totalCostSom.toFixed(2)}<br/>
+  `;
+}
+window.onload = calculateCost;
+</script>
+
+</body>
+</html>
